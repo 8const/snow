@@ -1,5 +1,4 @@
-flake.hs attempts to compute and display a snowflake by iterating on a binary string that represents a state of a 2 dimentional grid of hexagonal tiles. Implemented in Haskell. Gloss is used for displaying. 
+flake.hs computes and displays a snowflake by iterating on a binary string that represents a state of a 2 dimentional grid of hexagonal tiles. Implemented in Haskell. Gloss is used for displaying. 
 
-
-
-Iteration is not yet defined. Display of a state is defined. 
+Performance could be improved.
+My computer isn't ok with 100x100 or more grid simulations.
