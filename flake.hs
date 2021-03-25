@@ -14,9 +14,8 @@ import Graphics.Gloss.Data.ViewPort
 --1 in string denotes black hex
 --0 denotes white hex
 
---grid is 96x96
---replace all 96 in code to change
---96 might be too big for some computers to handle
+--grid is 32x32
+--replace all 32 in code to change
 --model is impressively infeficcient
 
 
@@ -26,9 +25,9 @@ import Graphics.Gloss.Data.ViewPort
 cords :: Int -> (Float, Float)
 cords i  
         --hex grid with pointy top has rows of 2 types
-        | even     = (1.72*(fromIntegral $ i `mod` 96),      1.5*(fromIntegral $ i `div` 96))
-        | not even = (0.86+1.72*(fromIntegral $ i `mod` 96), 1.5*(fromIntegral $ i `div` 96))
-                where even = (i `div` 96) `mod` 2 == 0 
+        | even     = (1.72*(fromIntegral $ i `mod` 32),      1.5*(fromIntegral $ i `div` 32))
+        | not even = (0.86+1.72*(fromIntegral $ i `mod` 32), 1.5*(fromIntegral $ i `div` 32))
+                where even = (i `div` 32) `mod` 2 == 0 
 
 
 --gets indices of 1s from binary string encoding state 
@@ -59,20 +58,19 @@ picState :: [Int] -> Picture
 picState s = pictures $ map cordsToHex $ map cords $ oneAt s
 
 
-
 ------------------------ITERATION ON STATE -------------------------------
 
 --gets values from state in the neighborhood of point i and point i itself
 nei :: ([Int], Int) -> [Int]
 nei (li, i) 
         --enforces border conditions
-        | i < (96)+1      = [0,0,0,0,0,0,0]
-        | i > (96^2)-96-1 = [0,0,0,0,0,0,0]
+        | i < (32)+1      = [0,0,0,0,0,0,0]
+        | i > (32^2)-32-1 = [0,0,0,0,0,0,0]
 
         --hex grid with pointy top has rows of 2 types
-        | even     = [li !! i] ++ [li !! j | j <- [i+1, i+96, i+(96-1), i-1, i-(96+1), i-96]] 
-        | not even = [li !! i] ++ [li !! j | j <- [i+1, i+(96+1), i+96, i-1, i-96, i-(96-1)]]
-                where even = (i `div`96) `mod` 2 == 0 
+        | even     = [li !! i] ++ [li !! j | j <- [i+1, i+32, i+(32-1), i-1, i-(32+1), i-32]] 
+        | not even = [li !! i] ++ [li !! j | j <- [i+1, i+(32+1), i+32, i-1, i-32, i-(32-1)]]
+                where even = (i `div`32) `mod` 2 == 0 
 
 
 --defines change of state of 1 hexagon given its neighborhood
@@ -92,17 +90,17 @@ automata s = [rule $ nei (s, i) | i <- [0..length s - 1]]
 --design is weird because Gloss requires such; see docs of "simulate"
 update :: ViewPort -> Float -> [Int] -> [Int]
 update _ t state 
-        | sum state < round (96^2/3) = (iterate automata state) !! (round t)  
+        --stops if too big to fit
+        | sum state < round (32^2/3) = (iterate automata state) !! (round t)  
         | otherwise = state
-
 
 
 main :: IO ()
 main = do
-        --state of 1 hexagon near the center of 96x96 grid
-        let initial = take (round $ 96^2/2+96/2)       [0,0..]
+        --state of 1 hexagon near the center of 32x32 grid
+        let initial = take (round $ 32^2/2+32/2)       [0,0..]
                                                     ++ [1]  ++ 
-                      take (round $ 1+(96^2)/2-(96/2)) [0,0..]  
+                      take (round $ 1+(32^2)/2-(32/2)) [0,0..]  
         --output
         simulate window white 1 initial picState update
 
